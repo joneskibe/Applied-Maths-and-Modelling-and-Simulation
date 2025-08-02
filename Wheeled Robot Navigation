@@ -1,1 +1,62 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Robot Parameters
+L = 0.5           # Wheelbase (m)
+dt = 0.1          # Time step (s)
+T = 60            # Total time (s)
+v = 0.5           # Linear speed (m/s)
+lookahead = 0.5   # Lookahead distance for tracking
+
+# Circular path
+R = 5             # Radius
+omega = v / R
+t_vals = np.arange(0, T, dt)
+path_x = R * np.cos(omega * t_vals)
+path_y = R * np.sin(omega * t_vals)
+
+# Robot initial pose
+x, y, theta = R + 0.5, 0.0, np.pi/2
+trajectory = [(x, y)]
+
+def find_lookahead_point(x, y, path_x, path_y, lookahead):
+    # Find closest path point
+    dists = np.hypot(path_x - x, path_y - y)
+    idx = np.argmin(dists)
+
+    # Search forward for point at lookahead distance
+    for i in range(idx, len(path_x)):
+        dist = np.hypot(path_x[i] - x, path_y[i] - y)
+        if dist >= lookahead:
+            return path_x[i], path_y[i]
+    return path_x[-1], path_y[-1]
+
+# Simulate
+for _ in t_vals:
+    lx, ly = find_lookahead_point(x, y, path_x, path_y, lookahead)
+    
+    # Compute control
+    alpha = np.arctan2(ly - y, lx - x) - theta
+    alpha = np.arctan2(np.sin(alpha), np.cos(alpha))  # normalize
+
+    omega_cmd = 2 * v * np.sin(alpha) / lookahead  # pure pursuit
+    
+    # Update pose
+    x += v * np.cos(theta) * dt
+    y += v * np.sin(theta) * dt
+    theta += omega_cmd * dt
+    trajectory.append((x, y))
+
+# Plotting
+trajectory = np.array(trajectory)
+plt.figure(figsize=(8, 8))
+plt.plot(path_x, path_y, 'r--', label="Desired Path (Circle)")
+plt.plot(trajectory[:, 0], trajectory[:, 1], 'b-', label="Robot Trajectory")
+plt.axis('equal')
+plt.xlabel("X position (m)")
+plt.ylabel("Y position (m)")
+plt.title("Wheeled Robot Navigation Using Pure Pursuit")
+plt.grid(True)
+plt.legend()
+plt.show()
 
