@@ -1,1 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+# Parameters
+L = 1e-3     # Inductance in Henries (H)
+C = 1e-6     # Capacitance in Farads (F)
+
+# Angular frequency
+omega = 1 / np.sqrt(L * C)
+
+# Differential equation: dq/dt = i, di/dt = -q / (LC)
+def lc_oscillator(t, y):
+    q, i = y
+    dqdt = i
+    didt = -q / (L * C)
+    return [dqdt, didt]
+
+# Initial conditions
+q0 = 1e-6     # Initial charge (C)
+i0 = 0        # Initial current (A)
+y0 = [q0, i0]
+
+# Time span for simulation
+t_span = (0, 0.01)
+t_eval = np.linspace(t_span[0], t_span[1], 1000)
+
+# Solve the system
+solution = solve_ivp(lc_oscillator, t_span, y0, t_eval=t_eval)
+
+# Extract charge and current
+q = solution.y[0]
+i = solution.y[1]
+t = solution.t
+
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.plot(t, q, label='Charge q(t)', color='blue')
+plt.plot(t, i, label='Current i(t)', color='red')
+plt.title('LC Circuit Oscillations')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
 
