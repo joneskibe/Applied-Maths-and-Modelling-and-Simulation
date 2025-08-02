@@ -1,1 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants
+rho = 1.225        # Air density (kg/m³)
+R = 40             # Rotor radius (m)
+A = np.pi * R**2   # Swept area (m²)
+Cp = 0.4           # Power coefficient (realistic < Betz limit)
+P_rated = 2e6      # Rated power (2 MW)
+
+# Wind speed range
+v = np.linspace(0, 30, 300)
+
+# Cut-in, rated, cut-out wind speeds
+v_cut_in = 3
+v_rated = 12
+v_cut_out = 25
+
+# Power output array
+P = np.zeros_like(v)
+
+# Compute power for valid wind speeds
+for i in range(len(v)):
+    if v_cut_in <= v[i] < v_rated:
+        P[i] = 0.5 * rho * A * Cp * v[i]**3
+    elif v_rated <= v[i] < v_cut_out:
+        P[i] = P_rated
+    else:
+        P[i] = 0
+
+# Convert power to MW
+P_MW = P / 1e6
+
+# Plot
+plt.figure(figsize=(10, 6))
+plt.plot(v, P_MW, 'b', linewidth=2)
+plt.axvline(v_cut_in, color='gray', linestyle='--', label='Cut-in')
+plt.axvline(v_rated, color='orange', linestyle='--', label='Rated')
+plt.axvline(v_cut_out, color='red', linestyle='--', label='Cut-out')
+plt.title('Wind Turbine Power Curve')
+plt.xlabel('Wind Speed (m/s)')
+plt.ylabel('Power Output (MW)')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
 
