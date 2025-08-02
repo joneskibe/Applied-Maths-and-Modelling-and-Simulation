@@ -1,1 +1,34 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as anim
 
+y = 5.0 #m
+v = 0.0 #m/s
+g = -9.81 #m/s^2
+bounce = 0.8 #loses 20% energy in every bounce
+dt = 0.02
+
+fig,ax = plt.subplots() # Create figure and axis
+ax.set_xlim(0, 2)
+ax.set_ylim(0, 6)
+ax.set_xlabel("Horizontal Position (m)")
+ax.set_ylabel("Height (m)")
+ax.set_title("Bouncing Ball Simulation")
+
+ax.set_aspect('equal', 'box')
+
+ball = plt.Circle((1, y),0.1, color = "red")
+ax.add_patch(ball)
+
+def animate(frame):
+    global y, v
+    a = g #a=F/m
+    v = v + a*dt
+    y = y + v*dt
+    if y<=0:
+        y=0
+        v=-bounce*v
+    ball.center = (1,y)
+    return ball,
+
+ani = anim.FuncAnimation(fig,animate, frames=200,interval=int(dt*1000),blit=True)
+plt.show()
