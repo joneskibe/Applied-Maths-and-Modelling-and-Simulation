@@ -1,1 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Fluid and pipe properties
+rho = 1000        # kg/m³ (water)
+mu = 0.001        # Pa·s
+D = 0.05          # m (pipe diameter)
+L = 10            # m (pipe length)
+epsilon = 0.0002  # m (pipe roughness)
+
+# Generate flow rates (m³/s)
+Q_vals = np.linspace(0.0001, 0.01, 100)
+delta_P = []
+
+for Q in Q_vals:
+    A = np.pi * D**2 / 4
+    v = Q / A
+    Re = rho * v * D / mu
+
+    # Friction factor (laminar or turbulent)
+    if Re < 2000:
+        f = 64 / Re
+    else:
+        # Swamee-Jain Equation (explicit for turbulent flow)
+        f = 0.25 / (np.log10((epsilon / (3.7 * D)) + (5.74 / Re**0.9)))**2
+
+    dp = f * (L / D) * (rho * v**2 / 2)
+    delta_P.append(dp)
+
+# Plot
+plt.figure(figsize=(8, 5))
+plt.plot(Q_vals * 1e3, np.array(delta_P) / 1000, color='blue')
+plt.xlabel("Flow Rate Q (L/s)")
+plt.ylabel("Pressure Drop ΔP (kPa)")
+plt.title("Pressure Drop vs Flow Rate in a Pipe")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
 
