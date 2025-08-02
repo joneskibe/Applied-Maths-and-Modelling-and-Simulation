@@ -1,1 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+r = 0.5         # Growth rate (per hour)
+K = 1000        # Carrying capacity
+N0 = 10         # Initial population
+t_end = 20      # Simulation duration (hours)
+dt = 0.1        # Time step
+
+# Initialization
+time = [0]
+population = [N0]
+
+# Runge-Kutta 4th Order method
+t = 0
+N = N0
+while t < t_end:
+    def dNdt(N): return r * N * (1 - N / K)
+
+    k1 = dt * dNdt(N)
+    k2 = dt * dNdt(N + 0.5 * k1)
+    k3 = dt * dNdt(N + 0.5 * k2)
+    k4 = dt * dNdt(N + k3)
+
+    N += (1/6) * (k1 + 2*k2 + 2*k3 + k4)
+    N = min(N, K)  # Prevent overshoot
+    t += dt
+
+    time.append(t)
+    population.append(N)
+
+# Plotting the result
+plt.plot(time, population, label='Bacterial Population')
+plt.axhline(K, color='gray', linestyle='--', label='Carrying Capacity (K)')
+plt.title("Bacterial Growth (Logistic Model)")
+plt.xlabel("Time (hours)")
+plt.ylabel("Population")
+plt.grid(True)
+plt.legend()
+plt.show()
 
